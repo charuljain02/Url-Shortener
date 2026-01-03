@@ -1,34 +1,42 @@
-const {v4: uuidv4} = require('uuid')
 const User = require("../models/user");
-const {setUser} = require('../service/auth')
+const { setUser } = require("../service/auth");
+
 async function handleUserSignup(req, res) {
   const { name, email, password } = req.body;
-  await User.create({
-    name,
-    email,
-    password,
-  });
-  return res.redirect("/"); // ✅ safe defaults
+
+  try {
+    await User.create({ name, email, password });
+    return res.redirect("/login");
+  } catch (err) {
+    if (err.code === 11000) {
+      return res.render("signup", {
+        error: "Email already registered",
+      });
+    }
+    console.error(err);
+    return res.status(500).send("Server error");
+  }
 }
 
 async function handleUserLogin(req, res) {
   const { email, password } = req.body;
-  const user = await User.findOne({
-    email,
-    password,
-  });
 
-  if (!user)
+  const user = await User.findOne({ email });
+
+  if (!user) {
     return res.render("login", {
-      error: "Invalid Username or Password",
+      error: "Email not registered",
     });
-// const token = setUser(user);
-// res.cookie("uid", token,{
-//   domain: './piyushgarg.dev' //aage waele dot ka means subDovjort
-// }) ;
+  }
 
-//response way
-const token = s
+  if (user.password !== password) {
+    return res.render("login", {
+      error: "Wrong password",
+    });
+  }
+
+  const token = setUser(user);
+  res.cookie("uid", token);
 
   return res.redirect("/");
 }
@@ -37,48 +45,3 @@ module.exports = {
   handleUserSignup,
   handleUserLogin,
 };
-
-
-
-
-
-
-
-
-
-
-// const {v4: uuidv4} = require('uuid')
-// const User = require("../models/user");
-// const {setUser} = require('../service/auth')
-// async function handleUserSignup(req, res) {
-//   const { name, email, password } = req.body;
-//   await User.create({
-//     name,
-//     email,
-//     password,
-//   });
-//   return res.redirect("/"); // ✅ safe defaults
-// }
-
-// async function handleUserLogin(req, res) {
-//   const { email, password } = req.body;
-//   const user = await User.findOne({
-//     email,
-//     password,
-//   });
-
-//   if (!user)
-//     return res.render("login", {
-//       error: "Invalid Username or Password",
-//     });
-// const sessionId = uuidv4()
-
-// setUser(sessionId,user);
-// res.cookie("uid", sessionId) 
-//   return res.redirect("/");
-// }
-
-// module.exports = {
-//   handleUserSignup,
-//   handleUserLogin,
-// };

@@ -3,20 +3,79 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SignIn</title>
+  <title>Login</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      margin: 0;
+      background: black;
+      font-family: 'Poppins', sans-serif;
+      color: white;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+
+    }
+
+    .card {
+      background: rgba(255,255,255,0.05);
+      padding: 30px;
+      border-radius: 12px;
+      width: 350px;
+      box-shadow: 0 0 30px rgba(0,255,255,0.3);
+    }
+
+    h1 {
+      text-align: center;
+      color: #00ffff;
+    }
+
+    input, button {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border-radius: 6px;
+      border: none;
+    }
+
+    input {
+      background: rgba(255,255,255,0.1);
+      color: white;
+    }
+
+    button {
+      background: linear-gradient(90deg, #00ffff, #ff00ff);
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+  </style>
 </head>
+
 <body>
-  <h1>SignIn</h1>
+  <div class="card">
+    <h1>Login</h1>
+    <% if (locals.error) { %>
+  <p style="
+    color: #ff4d4d;
+    background: rgba(255, 0, 0, 0.15);
+    padding: 10px;
+    border-radius: 6px;
+    margin-bottom: 15px;
+  ">
+    ❌ <%= error %>
+  </p>
+<% } %>
 
-  <form action="/user/login" method="POST">
-    <label>Email</label>
-    <input type="email" name="email" required >
-    <br /><br />
-    <label>Password</label>
-    <input type="password" name="password" required />
-    <br /><br />
-
-    <button type="submit">LogIn</button>
-  </form>
+    <form action="/user/login" method="post">
+      <input type="email" required name="email" placeholder="Email" />
+      <input type="password" required name="password" placeholder="Password" />
+      <button type="submit">Login</button>
+    </form>
+  </div>
 </body>
 </html>

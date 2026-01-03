@@ -1,14 +1,20 @@
 const express = require("express");
-const { handleUserSignup,handleUserLogin } = require("../controllers/user"); // ✅ fixed import
+const { handleUserSignup, handleUserLogin } = require("../controllers/user");
+
 const router = express.Router();
 
-// show signup page
-router.get("/", (req, res) => {
-  return res.render("signup");
+// Signup route
+router.get("/signup", (req, res) => {
+  res.render("signup"); // render signup page
 });
 
-// handle form submission
-router.post("/", handleUserSignup);
+router.post("/signup", handleUserSignup);
+
+// Login route
+router.get("/login", (req, res) => {
+  res.render("login"); // render login page
+});
+
 router.post("/login", handleUserLogin);
 
 module.exports = router;

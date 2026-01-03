@@ -1,55 +1,43 @@
 const express = require("express");
 const path = require("path");
-const cookieParser = require('cookie-parser')
+const cookieParser = require("cookie-parser");
 const { connectToMongoDB } = require("./connect");
-// const{restrictToLoggedinUserOnly, checkAuth} = require('./middleware/auth');
-const{restrictTo, checkForAuthentication} = require('./middleware/auth');
+const { restrictToLoggedinUserOnly, checkAuth } = require("./middlewares/auth");
 const URL = require("./models/url");
 
 const urlRoute = require("./routes/url");
-const staticRoute = require("./routes/staticRouter");
+const staticRoute = require("./routes/staticRouter"); // your home/static page routes
 const userRoute = require("./routes/user");
 
 const app = express();
-const PORT = 8001;
+const PORT = process.env.PORT || 8001;
 
-connectToMongoDB("mongodb://127.0.0.1:27017/shorturl")
-  .then(() => console.log("Mongodb connected"))
-  .catch((err) => console.error("Mongo connection error:", err));
+// 🔹 Connect to MongoDB
+connectToMongoDB(process.env.MONGODB ?? "mongodb://localhost:27017/short-url")
+  .then(() => console.log("MongoDB connected"))
+  .catch((err) => console.error("MongoDB connection error:", err));
 
+// 🔹 Set view engine
 app.set("view engine", "ejs");
 app.set("views", path.resolve("./views"));
 
-// middleware to parse JSON and form-encoded bodies
+// 🔹 Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+app.use(express.static(path.join(__dirname, "public")));
 app.use(cookieParser());
-app.use(checkForAuthentication)
 
+// 🔹 Attach user if logged in (DOES NOT BLOCK)
+app.use(checkAuth);
 
-// serve home at root
-
-//for jw token
-app.use("/url", restrictTo(["NORMAL"]) ,urlRoute);
-app.use("/", staticRoute);
+// 🔹 Public routes (login/signup)
 app.use("/user", userRoute);
-//for cookies
-// app.use("/", checkAuth, staticRoute);
-// app.use("/user",restrictToLoggedinUserOnly, userRoute);
-// app.use("/url",urlRoute);
 
-// test route
-app.get("/test", async (req, res) => {
-  try {
-    const allUrls = await URL.find({});
-    return res.render("home", { id: null, urls: allUrls }); // ✅ id defined
-  } catch (err) {
-    console.error(err);
-    return res.status(500).send("Server error");
-  }
-});
+// 🔹 Protected routes (require login)
+app.use("/url", restrictToLoggedinUserOnly, urlRoute);
+app.use("/", restrictToLoggedinUserOnly, staticRoute);
 
-// redirect route for short links
+// 🔹 Redirect short URLs
 app.get("/url/:shortId", async (req, res) => {
   try {
     const shortId = req.params.shortId;
@@ -60,12 +48,23 @@ app.get("/url/:shortId", async (req, res) => {
     );
 
     if (!entry) return res.status(404).send("Short URL not found");
-
-    return res.redirect(entry.redirectURL);
+    res.redirect(entry.redirectURL);
   } catch (err) {
     console.error(err);
-    return res.status(500).send("Server error");
+    res.status(500).send("Server error");
   }
 });
 
-app.listen(PORT, () => console.log(`server started at port ${PORT}`));
+// 🔹 Home page - show user's URLs
+app.get("/", restrictToLoggedinUserOnly, async (req, res) => {
+  try {
+    const urls = await URL.find({ createdBy: req.user._id });
+    res.render("home", { id: null, urls });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Server error");
+  }
+});
+
+// 🔹 Start server
+app.listen(PORT, () => console.log(`Server started on PORT: ${PORT}`));
