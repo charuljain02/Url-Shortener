@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # URL Shortener with Login & Analytics
 
 A full-stack URL shortener built with **Node.js, Express, MongoDB, and EJS**.  
@@ -32,3 +33,7 @@ Users can **signup/login**, generate **short URLs**, and track **click analytics
 ![Signup Page](assets/Screenshot(1112).png)
 
 
+=======
+# Url-Shortener
+A Node.js URL shortener with user authentication and analytics.
+>>>>>>> e5dc6d7f39956538807971aea45608ad987b1aba
