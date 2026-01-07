@@ -6,7 +6,7 @@ const { restrictToLoggedinUserOnly, checkAuth } = require("./middlewares/auth");
 const URL = require("./models/url");
 
 const urlRoute = require("./routes/url");
-const staticRoute = require("./routes/staticRouter"); // your home/static page routes
+const staticRoute = require("./routes/staticRouter");
 const userRoute = require("./routes/user");
 
 const app = express();
@@ -17,7 +17,7 @@ connectToMongoDB(process.env.MONGODB ?? "mongodb://localhost:27017/short-url")
   .then(() => console.log("MongoDB connected"))
   .catch((err) => console.error("MongoDB connection error:", err));
 
-// 🔹 Set view engine
+// 🔹 View engine
 app.set("view engine", "ejs");
 app.set("views", path.resolve("./views"));
 
@@ -27,17 +27,17 @@ app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, "public")));
 app.use(cookieParser());
 
-// 🔹 Attach user if logged in (DOES NOT BLOCK)
+// 🔹 Attach user if logged in (does NOT block)
 app.use(checkAuth);
 
-// 🔹 Public routes (login/signup)
-app.use("/user", userRoute);
+// ================= PUBLIC ROUTES =================
+app.use("/user", userRoute);   // POST /user/login , /user/signup
+app.use("/", staticRoute);     // GET /login , /signup , /
 
-// 🔹 Protected routes (require login)
+// ================= PROTECTED ROUTES =================
 app.use("/url", restrictToLoggedinUserOnly, urlRoute);
-app.use("/", restrictToLoggedinUserOnly, staticRoute);
 
-// 🔹 Redirect short URLs
+// 🔹 Redirect short URLs (PUBLIC)
 app.get("/url/:shortId", async (req, res) => {
   try {
     const shortId = req.params.shortId;
@@ -49,17 +49,6 @@ app.get("/url/:shortId", async (req, res) => {
 
     if (!entry) return res.status(404).send("Short URL not found");
     res.redirect(entry.redirectURL);
-  } catch (err) {
-    console.error(err);
-    res.status(500).send("Server error");
-  }
-});
-
-// 🔹 Home page - show user's URLs
-app.get("/", restrictToLoggedinUserOnly, async (req, res) => {
-  try {
-    const urls = await URL.find({ createdBy: req.user._id });
-    res.render("home", { id: null, urls });
   } catch (err) {
     console.error(err);
     res.status(500).send("Server error");
