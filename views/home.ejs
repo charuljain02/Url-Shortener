@@ -5,24 +5,29 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>URL Shortener</title>
 
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
 
   <style>
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       margin: 0;
       font-family: 'Poppins', sans-serif;
-      background: black;
+      background: radial-gradient(circle at top, #050014, #000000 70%);
       color: white;
       min-height: 100vh;
       overflow-x: hidden;
     }
 
-    /* Stars */
+    /* ⭐ STAR BACKGROUND */
     .stars {
       position: fixed;
       width: 100%;
       height: 100%;
       z-index: -1;
+      overflow: hidden;
     }
 
     .star {
@@ -31,77 +36,173 @@
       height: 2px;
       background: white;
       border-radius: 50%;
-      animation: twinkle 3s infinite;
+      opacity: 0.8;
+      animation: twinkle 3s infinite ease-in-out;
     }
 
     @keyframes twinkle {
-      0%, 100% { opacity: 0.2; }
-      50% { opacity: 1; }
+      0%, 100% { opacity: 0.2; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.6); }
     }
 
+    /* 🌈 TITLE */
     h1 {
       text-align: center;
-      color: #00ffff;
-      text-shadow: 0 0 15px #00ffff;
+      font-size: 2.7rem;
+      margin-bottom: 10px;
+      background: linear-gradient(90deg, #2f4747, #ff00ff, #65a28a);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
 
+    @keyframes glow {
+      from { text-shadow: 0 0 10px #00ffff; }
+      to { text-shadow: 0 0 25px #442d44; }
+    }
+
+    /* 🪟 CARD */
     .card {
       max-width: 900px;
-      margin: 40px auto;
+      margin: 50px auto;
       padding: 30px;
-      background: rgba(255,255,255,0.05);
-      border-radius: 12px;
-      backdrop-filter: blur(10px);
-      box-shadow: 0 0 30px rgba(0,255,255,0.2);
+      background: rgba(255,255,255,0.06);
+      border-radius: 16px;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 0 35px rgba(0,255,255,0.25);
+      animation: fadeIn 1s ease;
     }
 
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* 🎯 GENERATED LINK */
+    .generated {
+      text-align: center;
+      margin-bottom: 20px;
+      font-size: 1.05rem;
+      color: #00ff99;
+      word-break: break-all;
+    }
+
+    .generated span {
+      color: #00ffff;
+    }
+
+    /* ✏️ FORM */
     form {
       display: flex;
       gap: 10px;
       justify-content: center;
-      margin-bottom: 20px;
+      margin-bottom: 25px;
+      flex-wrap: wrap;
     }
 
     input {
       flex: 1;
-      padding: 12px;
-      border-radius: 6px;
-      border: none;
-      background: rgba(255,255,255,0.1);
+      min-width: 240px;
+      padding: 12px 14px;
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.2);
+      outline: none;
+      background: rgba(255,255,255,0.08);
       color: white;
+      font-size: 0.95rem;
+    }
+
+    input::placeholder {
+      color: #bbb;
+    }
+
+    input:focus {
+      border-color: #00ffff;
+      box-shadow: 0 0 12px #00ffff;
     }
 
     button {
-      padding: 12px 20px;
-      border-radius: 6px;
+      padding: 12px 22px;
+      border-radius: 8px;
       border: none;
       cursor: pointer;
-      font-weight: bold;
+      font-weight: 600;
+      font-size: 0.95rem;
       background: linear-gradient(90deg, #00ffff, #ff00ff);
-      color: white;
-      box-shadow: 0 0 15px #00ffff, 0 0 30px #ff00ff;
+      color: black;
+      box-shadow: 0 0 18px #4a8282, 0 0 30px #ff00ff;
+      transition: transform 0.1s, box-shadow 0.2s;
     }
 
+    button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 25px #00ffff, 0 0 45px #ff00ff;
+    }
+
+    /* 📊 TABLE */
     table {
       width: 100%;
       border-collapse: collapse;
-      margin-top: 20px;
+      margin-top: 10px;
+      font-size: 0.95rem;
     }
 
     th, td {
-      padding: 10px;
+      padding: 12px 10px;
       text-align: center;
-      border-bottom: 1px solid rgba(255,255,255,0.2);
+      border-bottom: 1px solid rgba(255,255,255,0.15);
     }
 
     th {
       color: #00ffff;
+      font-weight: 600;
     }
 
-    .generated {
-      text-align: center;
-      margin-bottom: 20px;
-      color: #00ff99;
+    tbody tr:hover {
+      background: rgba(255,255,255,0.05);
+    }
+
+    /* 🔗 LINK PILL STYLE */
+td a {
+  display: inline-block;
+  max-width: 320px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  color: #00ffff;
+  background: rgba(0, 255, 255, 0.08);
+  border: 1px solid rgba(0,255,255,0.4);
+  text-decoration: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  box-shadow: 0 0 10px rgba(0,255,255,0.3);
+  transition: all 0.25s ease;
+}
+
+/* ✨ Hover effect */
+td a:hover {
+  color: black;
+  background: linear-gradient(90deg, #00ffff, #ff00ff);
+  box-shadow: 0 0 18px #00ffff, 0 0 35px #ff00ff;
+  transform: scale(1.05);
+}
+
+/* 📱 Mobile fix */
+@media (max-width: 600px) {
+  td a {
+    max-width: 180px;
+    font-size: 0.75rem;
+  }
+}
+
+    /* 📱 RESPONSIVE */
+    @media (max-width: 600px) {
+      h1 {
+        font-size: 2rem;
+      }
+      .card {
+        margin: 30px 12px;
+      }
     }
   </style>
 </head>
@@ -110,11 +211,12 @@
   <div class="stars" id="stars"></div>
 
   <div class="card">
-    <h1> URL Shortener </h1>
+    <h1>🚀 URL Shortener</h1>
 
     <% if (locals.id) { %>
       <p class="generated">
-        Short URL: http://localhost:8001/url/<%= id %>
+        Short URL: 
+        <span>http://localhost:8001/url/<%= id %></span>
       </p>
     <% } %>
 
@@ -123,7 +225,7 @@
       <button type="submit">Generate</button>
     </form>
 
-    <% if (locals.urls) { %>
+    <% if (locals.urls && urls.length > 0) { %>
     <table>
       <thead>
         <tr>
@@ -138,11 +240,11 @@
         <tr>
           <td><%= index + 1 %></td>
           <td><%= url.shortId %></td>
-<td class="redirect">
-  <a href="<%= url.redirectURL %>" target="_blank">
-    <%= url.redirectURL %>
-  </a>
-</td>
+          <td>
+            <a href="<%= url.redirectURL %>" target="_blank">
+              <%= url.redirectURL %>
+            </a>
+          </td>
           <td><%= url.visitHistory.length %></td>
         </tr>
         <% }) %>
@@ -153,7 +255,7 @@
 
   <script>
     const stars = document.getElementById("stars");
-    for (let i = 0; i < 120; i++) {
+    for (let i = 0; i < 140; i++) {
       const s = document.createElement("div");
       s.className = "star";
       s.style.top = Math.random() * 100 + "%";
